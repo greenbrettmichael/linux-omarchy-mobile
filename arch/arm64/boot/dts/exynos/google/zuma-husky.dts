@@ -33,6 +33,17 @@
 		};
 	};
 
+	/*
+	 * UFS VCC: a GPIO-switched fixed regulator on gpp0-1 on stock. No
+	 * pinctrl driver yet, and ABL leaves it on, as it reads UFS itself.
+	 */
+	ufs_0_fixed_vcc_reg: regulator-ufs-vcc {
+		compatible = "regulator-fixed";
+		regulator-name = "ufs-vcc";
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
 	chosen {
 		/*
 		 * ABL requires bootargs to exist; it appends its own after these.
@@ -86,5 +97,18 @@
 };
 
 &usbdrd_phy {
+	status = "okay";
+};
+
+/*
+ * Behind the init's storage guard (only slot B's boot images and userdata
+ * writable), which runs before the disks appear.
+ */
+&ufs_0 {
+	vcc-supply = <&ufs_0_fixed_vcc_reg>;
+	status = "okay";
+};
+
+&ufs_0_phy {
 	status = "okay";
 };
