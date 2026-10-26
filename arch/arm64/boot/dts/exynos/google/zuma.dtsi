@@ -19,6 +19,11 @@
 	#size-cells = <1>;
 	interrupt-parent = <&gic>;
 
+	/* The pin controllers are numbered as in Tensor G4's driver data. */
+	aliases {
+		pinctrl10 = &pinctrl_hsi2ufs;
+	};
+
 	/*
 	 * Required by the Pixel bootloader (ABL). zuma's stock base DTB
 	 * carries the ECT location here rather than an empty node.
@@ -342,11 +347,15 @@
 			reg = <0x13020000 0x1000>;
 		};
 
-		/*
-		 * No zuma pinctrl driver yet: the UFS reset (gph5-1) and
-		 * reference clock output (gph5-0) pins are left in their UFS
-		 * function by the bootloader.
-		 */
+		/* Its bus clock runs from the UFS block, which ABL leaves on. */
+		pinctrl_hsi2ufs: pinctrl@13060000 {
+			compatible = "google,zuma-pinctrl";
+			reg = <0x13060000 0x1000>;
+			clocks = <&clk_ufs_core_stub>;
+			clock-names = "pclk";
+			interrupts = <GIC_SPI 433 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
 		ufs_0: ufs@13200000 {
 			compatible = "google,zuma-ufs", "google,zumapro-ufs";
 			reg = <0x13200000 0x200>,
@@ -364,6 +373,8 @@
 			freq-table-hz = <0 0>, <0 0>, <0 0>, <0 0>, <0 0>, <0 0>;
 			phys = <&ufs_0_phy>;
 			phy-names = "ufs-phy";
+			pinctrl-0 = <&ufs_rst_n &ufs_refclk_out>;
+			pinctrl-names = "default";
 			samsung,sysreg = <&sysreg_ufs 0x710>;
 			status = "disabled";
 		};
@@ -399,3 +410,5 @@
 		};
 	};
 };
+
+#include "zuma-pinctrl.dtsi"
