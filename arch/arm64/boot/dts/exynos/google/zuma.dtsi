@@ -160,9 +160,11 @@
 
 	/*
 	 * Fixed DRAM carve-outs from the live device tree, without the three
-	 * ABL inserts itself (pkvm_guest_firmware, sec_dram, sec_pt). Firmware,
-	 * co-processors or the bootloader own these, so the kernel must not
-	 * use them, whether or not a driver for the owner exists yet.
+	 * ABL inserts itself (pkvm_guest_firmware, sec_dram, sec_pt) and
+	 * debug_kinfo_reserved, which stock's base DTB carries and ABL adds to
+	 * a tree without it. Firmware, co-processors or the bootloader own
+	 * these, so the kernel must not use them, whether or not a driver for
+	 * the owner exists yet.
 	 * Stock leaves ect-binary, seclog and the three CP regions mapped for
 	 * the drivers that read them; with no such driver here they are
 	 * no-map, like the rest, on purpose.
@@ -186,7 +188,7 @@
 		cp-rmem@ea400000 { reg = <0x0 0xea400000 0xc00000>; no-map; };
 		cp-msi@f6200000 { reg = <0x0 0xf6200000 0x1000>; no-map; };
 		abl@f8800000 { reg = <0x0 0xf8800000 0x1000000>; no-map; };
-		debug@fd3f0000 { reg = <0x0 0xfd3f0000 0xf000>; no-map; };
+		debug@fd3f0000 { reg = <0x0 0xfd3f0000 0xe000>; no-map; };
 		/*
 		 * Stock's ramoops layout. zuma's user-build bootloader does not
 		 * keep it across a warm reset (even stock's own console log is
@@ -307,11 +309,6 @@
 			interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
-		/*
-		 * USB control block: Exynos 2200's link registers, with the
-		 * eUSB2 PHY below as its high-speed PHY. The USB3/DP combo PHY
-		 * (0x11130000) is left alone; the link runs at high speed.
-		 */
 		pinctrl_peric0: pinctrl@10840000 {
 			compatible = "google,zuma-pinctrl";
 			reg = <0x10840000 0x1000>;
@@ -320,6 +317,11 @@
 			interrupts = <GIC_SPI 634 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
+		/*
+		 * USB control block: Exynos 2200's link registers, with the
+		 * eUSB2 PHY below as its high-speed PHY. The USB3/DP combo PHY
+		 * (0x11130000) is left alone; the link runs at high speed.
+		 */
 		usbdrd_phy: phy@11100000 {
 			compatible = "google,zuma-usb32drd-phy";
 			reg = <0x11100000 0x200>;
