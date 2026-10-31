@@ -286,6 +286,12 @@ static int hk3_bl_update_status(struct backlight_device *bl)
 	if (!ctx->awake)
 		return 0;
 	hk3_write_brightness(ctx, &dsi_ctx);
+	/*
+	 * The DSI host does not take commands yet (gs-dsim-cmd's allow_tx):
+	 * the level is kept, as when asleep, and sent with the next write.
+	 */
+	if (dsi_ctx.accum_err == -EPERM)
+		return 0;
 
 	return dsi_ctx.accum_err;
 }
