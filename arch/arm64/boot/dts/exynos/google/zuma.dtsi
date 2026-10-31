@@ -1023,6 +1023,18 @@
 			};
 		};
 
+		/* Scans out what the bootloader set up; no panel or clock control. */
+		decon0: display-controller@19470000 {
+			compatible = "google,zuma-decon";
+			reg = <0x19470000 0x2000>, <0x19900000 0x1000>;
+			reg-names = "main", "dma";
+			interrupts = <GIC_SPI 243 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 242 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 241 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "frame_start", "frame_done", "extra";
+			status = "disabled";
+		};
+
 		/* The bootloader leaves G3D powered; there's no power domain yet. */
 		cmu_g3d: clock-controller@1ee00000 {
 			compatible = "google,zuma-cmu-g3d";

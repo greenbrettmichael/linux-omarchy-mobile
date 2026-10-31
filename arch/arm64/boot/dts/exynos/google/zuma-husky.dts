@@ -206,6 +206,18 @@
 			alignment = <0x0 0x200000>;
 			alloc-ranges = <0x0 0x80000000 0x80000000>;
 		};
+
+		/*
+		 * DECON's scanout buffers, below 4 GiB for DPP0's 32-bit DMA,
+		 * in RAM that stock leaves free.
+		 */
+		display_pool: display-pool {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x04000000>;
+			alignment = <0x0 0x00200000>;
+			alloc-ranges = <0x0 0xc4000000 0x10000000>;
+		};
 	};
 };
 
@@ -310,6 +322,17 @@
 		 <&cmu_g3d CLK_GOUT_G3D_COREGROUP>,
 		 <&cmu_g3d CLK_GOUT_G3D_STACKS>;
 	operating-points-v2 = <&gpu_opp>;
+	status = "okay";
+};
+
+/*
+ * DECON0 takes the display over from simple-framebuffer and flips DPP0
+ * between scanout buffers. Without a DSIM on its output port it stays at
+ * the bootloader's 60 Hz.
+ */
+&decon0 {
+	memory-region = <&display_pool>, <&cont_splash_mem>;
+	memory-region-names = "pool", "boot-framebuffer";
 	status = "okay";
 };
 
